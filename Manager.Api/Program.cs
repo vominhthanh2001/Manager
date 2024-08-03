@@ -1,11 +1,58 @@
+﻿using Manager.Api.Data;
+using Manager.Api.Services;
+using Manager.Shared.Contracts;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Connect Database
+string? connectString = builder.Configuration.GetConnectionString("Devoloper");
+if (string.IsNullOrWhiteSpace(connectString))
+    throw new ArgumentNullException(nameof(connectString));
+builder.Services.AddDbContext<ServerDbContext>(o => o.UseSqlServer(connectString));
+/**********************************************/
+
+//Đăng ký services
+builder.Services.AddScoped<IListUserManager, ListUserManagerService>();
+builder.Services.AddScoped<IToolProductManager, ToolProductService>();
+builder.Services.AddScoped<IUserManager, UserManagerService>();
+builder.Services.AddScoped<TokenService>();
+/**********************************************/
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+    if (key.Length == 0)
+    {
+        throw new ArgumentException("JWT key must not be empty.");
+    }
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+        policy.RequireRole("Admin"));
+});
 
 var app = builder.Build();
 
@@ -16,10 +63,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseHttpsRedirection();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
