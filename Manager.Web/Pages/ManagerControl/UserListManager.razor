@@ -5,7 +5,7 @@
 <div class="row mb-3">
     <div class="col">
         <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="HandlerButtonCreateUser">Tạo Mới</Button>
-        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="HandlerButtonApplyVoucher">Áp dụng voucher</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Size="ButtonSize.Small" @onclick="HandlerButtonApplyVoucher">Áp dụng voucher</Button>
     </div>
 </div>
 
@@ -17,7 +17,7 @@
       DataProvider="UsersDataProvider"
       SelectedItemsChanged="OnSelectedItemsChanged"
       AllowPaging="true"
-      PageSize="5"
+      PageSize="30"
       AllowSorting="true">
 
     <GridColumn TItem="UserModel" HeaderText="Id" PropertyName="Id">
@@ -64,7 +64,7 @@
         }
     </GridColumn>
 
-    <GridColumn TItem="UserModel" HeaderText="Loại Tool" PropertyName="ProductName">
+    <GridColumn TItem="UserModel" HeaderText="Product" PropertyName="ProductName">
         @context.Product.Name
     </GridColumn>
 
@@ -95,7 +95,7 @@
 <UserApllyVoucher @ref="ApplyVoucher"
                   OnHandlerVaildSubmitAndReload="ReloadGridData" />
 
-<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="3000" Placement="ToastsPlacement.TopRight" />
 
 @code {
     private VoucherModel voucherAplly = new();
@@ -140,7 +140,11 @@
         return users;
     }
 
-    private async Task ReloadGridData() => await GridRef.RefreshDataAsync();
+    private async Task ReloadGridData()
+    {
+        Users = await GetUsers();
+        await GridRef.RefreshDataAsync();
+    }
 
     private Task OnSelectedItemsChanged(HashSet<UserModel> Users)
     {

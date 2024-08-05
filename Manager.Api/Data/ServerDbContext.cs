@@ -20,7 +20,8 @@ namespace Manager.Api.Data
         {
             return Users
                 .Include(u => u.Role)
-                .Include(u => u.Product);
+                .Include(u => u.Product)
+                .Include(u => u.Authentication);
         }
 
         private void CreateDatabaseIfNotExists()

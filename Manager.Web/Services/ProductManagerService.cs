@@ -45,6 +45,14 @@ namespace Manager.Web.Services
             return response;
         }
 
+        public async Task<bool> UpdateAsync(ProductModel? product)
+        {
+            var resHttp = await _client.PostAsJsonAsync($"/api/product/update", product);
+            var response = await resHttp.Content.ReadFromJsonAsync<bool>();
+
+            return response;
+        }
+
         public async Task<List<ProductModel>?> GetAllAsync()
         {
             var resHttp = await _client.GetAsync($"/api/product/get-all");

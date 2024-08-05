@@ -14,6 +14,18 @@ namespace Manager.Api.Services
             _contenxt = contenxt;
         }
 
+        public async Task<List<ProductModel>?> GetAllAsync()
+        {
+            try
+            {
+                var products = await _product.ToListAsync();
+                return products;
+            }
+            catch (Exception ex) { }
+
+            return new List<ProductModel>();
+        }
+
         public async Task<bool> CreateAsync(string? name)
         {
             try
@@ -65,18 +77,6 @@ namespace Manager.Api.Services
             return null;
         }
 
-        public async Task<List<ProductModel>?> GetAllAsync()
-        {
-            try
-            {
-                var products = await _product.ToListAsync();
-                return products;
-            }
-            catch (Exception ex) { }
-
-            return new List<ProductModel>();
-        }
-
         public async Task<ProductModel?> FindAsync(string? name)
         {
             try
@@ -87,6 +87,25 @@ namespace Manager.Api.Services
             catch (Exception ex) { }
 
             return null;
+        }
+
+        public async Task<bool> UpdateAsync(ProductModel? product)
+        {
+            try
+            {
+                int id = product.Id;
+                var toolProductFind = await FindAsync(id);
+                if (toolProductFind is null)
+                    throw new Exception();
+
+                toolProductFind.Name = product.Name;
+                await _contenxt.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex) { }
+
+            return false;
         }
     }
 }

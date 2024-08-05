@@ -53,12 +53,12 @@
         </EditForm>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="OnHandlerVaildSubmit">Xóa</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="OnHandlerVaildSubmit">Xóa</Button>
         <Button Type="ButtonType.Button" Color="ButtonColor.Danger" @onclick="HideAsync">Thoát</Button>
     </FooterTemplate>
 </Modal>
 
-<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="3000" Placement="ToastsPlacement.TopRight" />
 
 @code {
     private string Title => $"Xóa Id : {User?.Id.ToString()}";

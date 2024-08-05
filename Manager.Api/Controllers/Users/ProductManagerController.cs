@@ -46,6 +46,13 @@ namespace Manager.Api.Controllers.Users
             return Ok(resFindAsync);
         }
 
+        [HttpPost("update")]
+        public async Task<ActionResult<bool>> UpdateAsync([FromBody] ProductModel? product)
+        {
+            var resFindAsync = await _service.UpdateAsync(product);
+            return Ok(resFindAsync);
+        }
+
         [HttpGet("get-all")]
         public async Task<ActionResult<List<ProductModel>?>> GetAllAsync()
         {

@@ -91,14 +91,18 @@ namespace Manager.Shared.Models
         {
             get
             {
-                string titleTimeRemaining = "Hết hạn sử dụng";
+                string titleTimeRemaining = string.Empty;
 
                 TimeSpan remaining = _timeRemaining;
-                if (remaining.Days > 0)
-                    titleTimeRemaining += $"{remaining.Days} Ngày ";
 
                 if (remaining.Days != 0 && remaining.Minutes != 0 && remaining.Seconds != 0)
+                    titleTimeRemaining += $"{remaining.Days} Ngày {remaining.Minutes} Phút {remaining.Seconds} giây";
+                else if (remaining.Minutes != 0 && remaining.Seconds != 0)
                     titleTimeRemaining += $"{remaining.Minutes} Phút {remaining.Seconds} giây";
+                else if (remaining.Seconds != 0)
+                    titleTimeRemaining += $"{remaining.Seconds} giây";
+                else
+                    titleTimeRemaining += $"Hết hạn sử dụng";
 
                 return titleTimeRemaining;
             }
@@ -120,6 +124,13 @@ namespace Manager.Shared.Models
         }
         private ProductModel _product = new ProductModel();
 
+        [Column("Authentication")]
+        public AuthenticationModel Authentication
+        {
+            get { return _authentication; }
+            set { _authentication = value; }
+        }
+        private AuthenticationModel _authentication = new AuthenticationModel();
 
         /// <summary>
         /// So sánh 2 mã hash

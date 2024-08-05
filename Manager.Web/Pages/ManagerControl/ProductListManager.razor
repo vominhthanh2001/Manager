@@ -4,17 +4,20 @@
 
 <div class="row mb-3">
     <div class="col-4">
-        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="HandlerButtonCreateProduct">Tạo Mới</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="HandlerButtonCreateProduct">Tạo Mới</Button>
     </div>
 </div>
 
-<Grid TItem="ProductModel"
-      Class="table table-hover table-bordered"
+<Grid @ref="GridRef"
+      TItem="ProductModel"
+      Class="table table-hover"
+      HeaderRowCssClass="bg-primary text-white border-bottom-0"
+      FiltersRowCssClass="bg-primary text-white bg-opacity-25 border-bottom-0"
       DataProvider="UsersDataProvider"
       SelectedItemsChanged="OnSelectedItemsChanged"
       AllowPaging="true"
-      PageSize="5"
-      Responsive="true">
+      PageSize="30"
+      AllowSorting="true">
 
     <GridColumn TItem="ProductModel" HeaderText="Id" PropertyName="Id">
         @context.Id
@@ -23,12 +26,35 @@
     <GridColumn TItem="ProductModel" HeaderText="Name" PropertyName="Name">
         @context.Name
     </GridColumn>
+
+    <GridColumn TItem="ProductModel" HeaderText="Chức năng" PropertyName="ActionTools">
+        <ChildContent>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.ExtraSmall" @onclick="()=>HandlerButtonUpdateProduct(context)">Cập nhật</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Size="ButtonSize.ExtraSmall" @onclick="()=>HandlerButtonDeleteProduct(context)">Xóa</Button>
+        </ChildContent>
+    </GridColumn>
 </Grid>
 
-<ProductCreateModal @ref="productCreateModal" />
+<ProductUpdateModal @ref="productUpdateModal"
+                    Product="productModal"
+                    OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<ProductDeleteModal @ref="productDeleteModal"
+                    Product="productModal"
+                    OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<ProductCreateModal @ref="productCreateModal"
+                    OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="3000" Placement="ToastsPlacement.TopRight" />
+
 @code {
     private ProductCreateModal productCreateModal { get; set; }
+    private ProductUpdateModal productUpdateModal { get; set; }
+    private ProductDeleteModal productDeleteModal { get; set; }
+    private ProductModel productModal { get; set; } = new();
 
+    private Grid<ProductModel> GridRef { get; set; }
     private IEnumerable<ProductModel?>? Products = default!;
     private HashSet<ProductModel> selectedProducts = new();
 
@@ -52,8 +78,26 @@
         return Task.CompletedTask;
     }
 
+    private async Task ReloadGridData()
+    {
+        Products = await GetProducts();
+        await GridRef.RefreshDataAsync();
+    }
+
     private async Task HandlerButtonCreateProduct()
     {
         await productCreateModal.ShowAsync();
+    }
+
+    private async Task HandlerButtonUpdateProduct(ProductModel product)
+    {
+        productModal = product;
+        await productUpdateModal.ShowAsync();
+    }
+
+    private async Task HandlerButtonDeleteProduct(ProductModel product)
+    {
+        productModal = product;
+        await productDeleteModal.ShowAsync();
     }
 }

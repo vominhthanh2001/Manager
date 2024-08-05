@@ -13,6 +13,7 @@ namespace Manager.Shared.Contracts
         Task<bool> DeleteAsync(int? id);
         Task<ProductModel?> FindAsync(int? id);
         Task<ProductModel?> FindAsync(string? name);
+        Task<bool> UpdateAsync(ProductModel? product);
         Task<List<ProductModel>?> GetAllAsync();
     }
 }

@@ -9,7 +9,7 @@
         </EditForm>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="OnHandlerVaildSubmit">Tạo</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="OnHandlerVaildSubmit">Xóa</Button>
         <Button Type="ButtonType.Button" Color="ButtonColor.Danger" @onclick="HideAsync">Thoát</Button>
     </FooterTemplate>
 </Modal>
@@ -17,8 +17,8 @@
 <Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="3000" Placement="ToastsPlacement.TopRight" />
 
 @code {
-    private string Title => $"Tạo mới product";
-   
+    private string Title => $"Xóa Id : {Product.Id}";
+
     [Parameter]
     public Modal Ref { get; set; }
 
@@ -30,16 +30,16 @@
 
     private async Task OnHandlerVaildSubmit()
     {
-        string name = Product.Name;
-        var response = await ProductManager.CreateAsync(name);
+        int id = Product.Id;
+        var response = await ProductManager.DeleteAsync(id);
         if (!response)
         {
-            ToastMessageUtil.ShowMessage(ToastType.Warning, $"Tạo product '{name}' thất tại");
+            ToastMessageUtil.ShowMessage(ToastType.Warning, $"Xóa product '{id}' thất tại");
             return;
         }
 
         await HideAsync();
-        ToastMessageUtil.ShowMessage(ToastType.Success, "Tạo thành công");
+        ToastMessageUtil.ShowMessage(ToastType.Success, "Xóa thành công");
     }
 
     public async Task ShowAsync() => await Ref.ShowAsync();

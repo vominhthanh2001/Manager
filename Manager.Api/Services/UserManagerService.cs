@@ -51,6 +51,16 @@ namespace Manager.Api.Services
 
                 string tokenAuthentication = _tokenService.GenerateToken(userFind);
 
+                #region Update Authentication
+                if (userFind.Authentication is null)
+                {
+                    userFind.Authentication = new AuthenticationModel();
+                    userFind.Authentication.Jwt = tokenAuthentication;
+
+                    await _context.SaveChangesAsync();
+                }
+                #endregion
+
                 return new UserResponseModel
                 {
                     Status = true,
