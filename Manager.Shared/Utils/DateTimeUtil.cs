@@ -11,8 +11,10 @@ namespace Manager.Shared.Utils
         // Lấy thời gian hiện tại theo múi giờ +7 (Việt Nam)
         public static DateTime GetCurrentTimeInVietnam()
         {
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            //TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            //return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+
+            return DateTime.Now;    
         }
 
         // So sánh thời gian hiện tại với thời gian đầu vào

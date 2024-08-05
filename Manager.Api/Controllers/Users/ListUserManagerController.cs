@@ -1,13 +1,14 @@
 ﻿using Manager.Shared.Contracts;
 using Manager.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Manager.Api.Controllers.Users
 {
     [ApiController]
-    [Authorize(Roles = "Administration")]
+    //[Authorize(Roles = "Administration")]
     [Route("api/list-user-manager")]
     public class ListUserManagerController : ControllerBase
     {

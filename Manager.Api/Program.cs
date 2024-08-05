@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +24,7 @@ builder.Services.AddDbContext<ServerDbContext>(o => o.UseSqlServer(connectString
 
 //Đăng ký services
 builder.Services.AddScoped<IListUserManager, ListUserManagerService>();
-builder.Services.AddScoped<IToolProductManager, ToolProductService>();
+builder.Services.AddScoped<IProductManager, ProductService>();
 builder.Services.AddScoped<IUserManager, UserManagerService>();
 builder.Services.AddScoped<TokenService>();
 /**********************************************/
@@ -51,7 +52,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy =>
-        policy.RequireRole("Admin"));
+    {
+        policy.RequireRole("Admin");
+    });
 });
 
 var app = builder.Build();
@@ -63,6 +66,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(policy =>
+{
+    policy.WithOrigins("https://localhost:7198")
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials()
+    .WithHeaders(HeaderNames.ContentType);
+});
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Manager.Api.Services
 {
-    public class ToolProductService : IToolProductManager
+    public class ProductService : IProductManager
     {
-        private DbSet<ToolProductModel> _product => _contenxt.ToolProducts;
+        private DbSet<ProductModel> _product => _contenxt.ToolProducts;
         private readonly ServerDbContext _contenxt;
-        public ToolProductService(ServerDbContext contenxt)
+        public ProductService(ServerDbContext contenxt)
         {
             _contenxt = contenxt;
         }
@@ -21,11 +21,12 @@ namespace Manager.Api.Services
                 if (string.IsNullOrWhiteSpace(name))
                     throw new ArgumentNullException(nameof(name));
 
-                await _product.AddAsync(new ToolProductModel
+                await _product.AddAsync(new ProductModel
                 {
                     Name = name,
                 });
                 await _contenxt.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex) { }
 
@@ -52,7 +53,7 @@ namespace Manager.Api.Services
             return false;
         }
 
-        public async Task<ToolProductModel?> FindAsync(int? id)
+        public async Task<ProductModel?> FindAsync(int? id)
         {
             try
             {
@@ -64,7 +65,7 @@ namespace Manager.Api.Services
             return null;
         }
 
-        public async Task<List<ToolProductModel>?> GetAllAsync()
+        public async Task<List<ProductModel>?> GetAllAsync()
         {
             try
             {
@@ -73,7 +74,19 @@ namespace Manager.Api.Services
             }
             catch (Exception ex) { }
 
-            return new List<ToolProductModel>();
+            return new List<ProductModel>();
+        }
+
+        public async Task<ProductModel?> FindAsync(string? name)
+        {
+            try
+            {
+                var toolProductFind = await _product.FirstOrDefaultAsync(x => x.Name == name);
+                return toolProductFind;
+            }
+            catch (Exception ex) { }
+
+            return null;
         }
     }
 }

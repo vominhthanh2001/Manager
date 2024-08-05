@@ -1,0 +1,195 @@
+﻿@page "/user-list-manager"
+
+<PageTitle>Danh sách tài khoản</PageTitle>
+
+<div class="row mb-3">
+    <div class="col">
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="HandlerButtonCreateUser">Tạo Mới</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.Small" @onclick="HandlerButtonApplyVoucher">Áp dụng voucher</Button>
+    </div>
+</div>
+
+<Grid @ref="GridRef"
+      TItem="UserModel"
+      Class="table table-hover"
+      HeaderRowCssClass="bg-primary text-white border-bottom-0"
+      FiltersRowCssClass="bg-primary text-white bg-opacity-25 border-bottom-0"
+      DataProvider="UsersDataProvider"
+      SelectedItemsChanged="OnSelectedItemsChanged"
+      AllowPaging="true"
+      PageSize="5"
+      AllowSorting="true">
+
+    <GridColumn TItem="UserModel" HeaderText="Id" PropertyName="Id">
+        @context.Id
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="Tài Khoản" PropertyName="Username">
+        @context.Username
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="Mật Khẩu" PropertyName="Password">
+        @context.PasswordToDot()
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="License" PropertyName="License">
+        @{
+            var maxLength = 20;
+            var truncatedLicense = context.License.Length > maxLength
+            ? context.License.Substring(0, maxLength) + "..."
+            : context.License;
+        }
+        <span title="@context.License">@truncatedLicense</span>
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="Thời Gian Còn Lại" PropertyName="TimeRemaining">
+        @if (context.TitleTimeRemaining != "Hết hạn sử dụng")
+        {
+            <Badge Color="BadgeColor.Success" IndicatorType="BadgeIndicatorType.RoundedPill">@context.TitleTimeRemaining</Badge>
+        }
+        else
+        {
+            <Badge Color="BadgeColor.Danger" IndicatorType="BadgeIndicatorType.RoundedPill">@context.TitleTimeRemaining</Badge>
+        }
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="Role" PropertyName="Role">
+        @if (context.Role.Role != "User")
+        {
+            <Badge Color="BadgeColor.Primary" IndicatorType="BadgeIndicatorType.RoundedPill">@context.Role.Role</Badge>
+        }
+        else
+        {
+            <Badge Color="BadgeColor.Dark" IndicatorType="BadgeIndicatorType.RoundedPill">@context.Role.Role</Badge>
+        }
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="Loại Tool" PropertyName="ProductName">
+        @context.Product.Name
+    </GridColumn>
+
+    <GridColumn TItem="UserModel" HeaderText="Chức năng" PropertyName="ActionTools">
+        <ChildContent>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Info" Size="ButtonSize.ExtraSmall" @onclick="()=> HandlerButtonUpdateRoleProduct(context)">Role|Product</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Primary" Size="ButtonSize.ExtraSmall" @onclick="()=> HandlerButtonUpdate(context)">Cập nhật</Button>
+            <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Size="ButtonSize.ExtraSmall" @onclick="() => HandlerButtonDelete(context)">Xóa</Button>
+        </ChildContent>
+    </GridColumn>
+</Grid>
+
+<UserUpdateRoleProduct @ref="UpdateRoleProduct"
+                       User="UserModal"
+                       OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<UserUpdateModal @ref="UpdateModal"
+                 User="UserModal"
+                 OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<UserDeleteModal @ref="RemoveModal"
+                 User="UserModal"
+                 OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<UserRegisterModal @ref="RegisterModal"
+                   OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<UserApllyVoucher @ref="ApplyVoucher"
+                  OnHandlerVaildSubmitAndReload="ReloadGridData" />
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    private VoucherModel voucherAplly = new();
+
+    private UserModel UserModal = new();
+    private UserUpdateRoleProduct UpdateRoleProduct { get; set; }
+    private UserUpdateModal UpdateModal { get; set; }
+    private UserDeleteModal RemoveModal { get; set; }
+    private UserRegisterModal RegisterModal { get; set; }
+    private UserApllyVoucher ApplyVoucher { get; set; }
+
+    private List<ProductModel> products { get; set; } = new();
+    private ProductModel productSelected { get; set; }
+
+    private List<RoleModel> roles { get; set; } = new();
+    private RoleModel roleSelected { get; set; }
+
+    private Grid<UserModel> GridRef { get; set; }
+    private IEnumerable<UserModel?>? Users = default!;
+    private HashSet<UserModel> selectedUser = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await GetProductsAsync();
+        productSelected = products.FirstOrDefault();
+
+        roles = await GetRolesAsync();
+        roleSelected = roles.FirstOrDefault();
+    }
+
+    private async Task<GridDataProviderResult<UserModel>> UsersDataProvider(GridDataProviderRequest<UserModel> request)
+    {
+        if (Users is null)
+            Users = await GetUsers();
+
+        return await Task.FromResult(request.ApplyTo(Users));
+    }
+
+    private async Task<List<UserModel?>?> GetUsers()
+    {
+        var users = await ListUserManager.GetAllAsync();
+        return users;
+    }
+
+    private async Task ReloadGridData() => await GridRef.RefreshDataAsync();
+
+    private Task OnSelectedItemsChanged(HashSet<UserModel> Users)
+    {
+        selectedUser = Users is not null && Users.Any() ? Users : new();
+        return Task.CompletedTask;
+    }
+
+    private async Task<List<ProductModel>> GetProductsAsync()
+    {
+        var products = await ProductManager.GetAllAsync();
+        return products;
+    }
+
+    private async Task<List<RoleModel>> GetRolesAsync()
+    {
+        var roles = new List<RoleModel>
+        {
+            new RoleModel { Id = 0 , Role = "User" },
+            new RoleModel { Id = 1 , Role = "Administration"}
+        };
+
+        return roles;
+    }
+
+    private async Task HandlerButtonUpdateRoleProduct(UserModel user)
+    {
+        UserModal = user;
+        await UpdateRoleProduct.ShowAsync();
+    }
+
+    private async Task HandlerButtonUpdate(UserModel user)
+    {
+        UserModal = user;
+        await UpdateModal.ShowAsync();
+    }
+
+    private async Task HandlerButtonDelete(UserModel user)
+    {
+        UserModal = user;
+        await RemoveModal.ShowAsync();
+    }
+
+    private async Task HandlerButtonCreateUser()
+    {
+        await RegisterModal.ShowAsync();
+    }
+
+    private async Task HandlerButtonApplyVoucher()
+    {
+        await ApplyVoucher.ShowAsync();
+    }
+}

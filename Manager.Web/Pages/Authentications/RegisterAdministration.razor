@@ -1,0 +1,113 @@
+﻿@page "/register-administration"
+
+<PageTitle>Đăng nhập</PageTitle>
+
+<EditForm Model="user"
+          title="Đăng ký tài khoản">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">Tài khoản</label>
+        <InputText @bind-Value="user.Username" class="form-control" placeholder="Tài khoản"></InputText>
+        <ValidationMessage For="()=> user.Username" />
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">Mật khẩu</label>
+        <InputText @bind-Value="user.Password" class="form-control" placeholder="Mật khẩu"></InputText>
+        <ValidationMessage For="()=> user.Password" />
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">Mật khẩu (hash)</label>
+        <span class="form-control text-truncate" placeholder="Mật khẩu (hash)">@user.PasswordHash</span>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">License</label>
+        <span class="form-control text-truncate" placeholder="License">@user.License</span>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">Thời gian kích hoạt</label>
+        <InputDate class="form-control" TValue="DateTime" @bind-Value="user.TimeActive" placeholder="Thời gian kích hoạt"></InputDate>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">Thời gian hết hạn</label>
+        <InputDate class="form-control" TValue="DateTime" @bind-Value="user.TimeExpired" placeholder="Thời gian hết hạn"></InputDate>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label class="control-label mb-1">Thời gian còn lại</label>
+        <span class="form-control" placeholder="Thời gian còn lại">@user.TimeRemaining</span>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <Dropdown Color="DropdownColor.Secondary" Size="DropdownSize.Small">
+            <DropdownToggleButton>@roleSelected?.Role</DropdownToggleButton>
+            <DropdownMenu>
+                @foreach (var role in roles)
+                {
+                    <DropdownItem Type="DropdownItemType.Button" @onclick="() => RoleSelected(role)">@role?.Role</DropdownItem>
+                }
+            </DropdownMenu>
+        </Dropdown>
+
+        <Dropdown Color="DropdownColor.Secondary" Size="DropdownSize.Small">
+            <DropdownToggleButton>@productSelected?.Name</DropdownToggleButton>
+            <DropdownMenu>
+                @foreach (var product in products)
+                {
+                    <DropdownItem Type="DropdownItemType.Button" @onclick="() => ProductSelected(product)">@product.Name</DropdownItem>
+                }
+            </DropdownMenu>
+        </Dropdown>
+    </div>
+
+    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="OnHandlerRegister">Đăng Ký</Button>
+</EditForm>
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    private UserModel user { get; set; } = new();
+    private List<ProductModel> products { get; set; } = new();
+    private ProductModel productSelected { get; set; }
+
+    private List<RoleModel> roles { get; set; } = new();
+    private RoleModel roleSelected { get; set; }
+
+    [Parameter]
+    public EventCallback OnHandlerRegister { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await GetProductsAsync();
+        productSelected = products.FirstOrDefault();
+
+        roles = await GetRolesAsync();
+        roleSelected = roles.FirstOrDefault();
+    }
+
+    private async Task<List<ProductModel>> GetProductsAsync()
+    {
+        var products = await ProductManager.GetAllAsync();
+        return products;
+    }
+
+    private async Task<List<RoleModel>> GetRolesAsync()
+    {
+        var roles = new List<RoleModel>
+        {
+            new RoleModel { Id = 0 , Role = "User" },
+            new RoleModel { Id = 1 , Role = "Administration"}
+        };
+
+        return roles;
+    }
+
+    private void ProductSelected(ProductModel product) => productSelected = product;
+    private void RoleSelected(RoleModel role) => roleSelected = role;
+}

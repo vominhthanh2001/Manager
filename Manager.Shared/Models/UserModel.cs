@@ -1,5 +1,6 @@
 ﻿using Manager.Shared.Utils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,31 +18,33 @@ namespace Manager.Shared.Models
         [Column("Id")]
         public int Id { get; set; }
 
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         [Column("Username")]
         public string Username
         {
             get { return _userName; }
             set { _userName = value; }
         }
-        private string _userName;
+        private string _userName = string.Empty;
 
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         [Column("Password")]
         public string Password
         {
             get { return _password; }
-            set
+            set { _password = value; }
+        }
+        private string _password = string.Empty;
+
+        public string PasswordHash
+        {
+            get
             {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentNullException(nameof(value));
-                
-                _password = HashUtil.ComputeSHA512(value);
+                return HashUtil.ComputeSHA512(_password);
             }
         }
-        private string _password;
 
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         [Column("License")]
         public string License
         {
@@ -58,7 +61,7 @@ namespace Manager.Shared.Models
             }
         }
 
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         [Column("TimeActive")]
         public DateTime TimeActive
         {
@@ -67,7 +70,7 @@ namespace Manager.Shared.Models
         }
         private DateTime _timeActive = DateTimeUtil.GetCurrentTimeInVietnam();
 
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         [Column("TimeExpired")]
         public DateTime TimeExpired
         {
@@ -76,7 +79,7 @@ namespace Manager.Shared.Models
         }
         private DateTime _timeExpired = DateTimeUtil.GetCurrentTimeInVietnam();
 
-        [Required(AllowEmptyStrings = true)]
+        [Required(AllowEmptyStrings = false)]
         [Column("TimeRemaining")]
         public TimeSpan TimeRemaining
         {
@@ -84,12 +87,39 @@ namespace Manager.Shared.Models
         }
         private TimeSpan _timeRemaining => DateTimeUtil.GetTimeRemaining(_timeExpired);
 
-        private string _role = "User";
-        public string Role
+        public string TitleTimeRemaining
+        {
+            get
+            {
+                string titleTimeRemaining = "Hết hạn sử dụng";
+
+                TimeSpan remaining = _timeRemaining;
+                if (remaining.Days > 0)
+                    titleTimeRemaining += $"{remaining.Days} Ngày ";
+
+                if (remaining.Days != 0 && remaining.Minutes != 0 && remaining.Seconds != 0)
+                    titleTimeRemaining += $"{remaining.Minutes} Phút {remaining.Seconds} giây";
+
+                return titleTimeRemaining;
+            }
+        }
+
+        [Column("Role")]
+        public RoleModel Role
         {
             get { return _role; }
             set { _role = value; }
         }
+        private RoleModel _role = new RoleModel();
+
+        [Column("Product")]
+        public ProductModel Product
+        {
+            get { return _product; }
+            set { _product = value; }
+        }
+        private ProductModel _product = new ProductModel();
+
 
         /// <summary>
         /// So sánh 2 mã hash
@@ -111,6 +141,20 @@ namespace Manager.Shared.Models
         public bool CompareDateTime()
         {
             return DateTimeUtil.CompareWithCurrentTimeInVietnam(_timeExpired);
+        }
+
+        public bool Vaild()
+        {
+            if (!string.IsNullOrWhiteSpace(License) && !string.IsNullOrWhiteSpace(_role.Role))
+                return true;
+
+            return false;
+        }
+
+        public string PasswordToDot()
+        {
+            string maskedPassword = new string('●', _password.Length);
+            return maskedPassword;
         }
     }
 }

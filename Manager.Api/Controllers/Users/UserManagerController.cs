@@ -2,6 +2,7 @@
 using Manager.Shared.Contracts;
 using Manager.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +18,7 @@ namespace Manager.Api.Controllers.Users
             _service = service;
         }
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpGet("forgot-password/{username}")]
         public async Task<ActionResult<UserModel>> ForgotPassword(string username)
         {
@@ -25,7 +26,7 @@ namespace Manager.Api.Controllers.Users
             return Ok(resForgotPassword);
         }
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<UserResponseModel>> Login([FromBody] UserModel user)
         {
@@ -36,7 +37,7 @@ namespace Manager.Api.Controllers.Users
             return Ok(resLogin);
         }
 
-        [Authorize(Roles = "User,Administration")]
+        //[Authorize(Roles = "User,Administration")]
         [HttpPost("logout")]
         public async Task<ActionResult<UserResponseModel>> Logout([FromBody] UserModel user)
         {
@@ -44,7 +45,7 @@ namespace Manager.Api.Controllers.Users
             return Ok(resLogout);
         }
 
-        [AllowAnonymous]
+        //[AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<UserResponseModel>> Register([FromBody] UserModel user)
         {

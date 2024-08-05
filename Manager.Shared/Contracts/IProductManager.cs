@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Manager.Shared.Contracts
 {
-    public interface IToolProductManager
+    public interface IProductManager
     {
         Task<bool> CreateAsync(string? name);
         Task<bool> DeleteAsync(int? id);
-        Task<ToolProductModel?> FindAsync(int? id);
-        Task<List<ToolProductModel>?> GetAllAsync();
+        Task<ProductModel?> FindAsync(int? id);
+        Task<ProductModel?> FindAsync(string? name);
+        Task<List<ProductModel>?> GetAllAsync();
     }
 }

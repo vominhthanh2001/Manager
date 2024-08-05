@@ -1,16 +1,40 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inject NavigationManager navigationManager
 
+<div class="bb-page">
+    <Sidebar2 Href="/"
+              IconName="IconName.Server"
+              Title="Server"
+              BadgeText="v1.0.0"
+              DataProvider="Sidebar2DataProvider" />
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
         <article class="content px-4">
-            @Body
+            <div class="py-2">@Body</div>
         </article>
     </main>
 </div>
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    private IEnumerable<NavItem> _navItems;
+
+    private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+    {
+        if (_navItems is null)
+            _navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(_navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        _navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/user-list-manager", IconName = IconName.HouseDoorFill, Text = "Danh sách tài khoản" },
+            new NavItem { Id = "2", Href = "/product-list-manager", IconName = IconName.HouseDoorFill, Text = "Danh sách phần mềm" },
+        };
+
+        return _navItems;
+    }
+}

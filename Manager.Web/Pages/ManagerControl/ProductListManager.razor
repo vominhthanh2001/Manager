@@ -1,0 +1,59 @@
+﻿@page "/product-list-manager"
+
+<PageTitle>Product List Manager</PageTitle>
+
+<div class="row mb-3">
+    <div class="col-4">
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="HandlerButtonCreateProduct">Tạo Mới</Button>
+    </div>
+</div>
+
+<Grid TItem="ProductModel"
+      Class="table table-hover table-bordered"
+      DataProvider="UsersDataProvider"
+      SelectedItemsChanged="OnSelectedItemsChanged"
+      AllowPaging="true"
+      PageSize="5"
+      Responsive="true">
+
+    <GridColumn TItem="ProductModel" HeaderText="Id" PropertyName="Id">
+        @context.Id
+    </GridColumn>
+
+    <GridColumn TItem="ProductModel" HeaderText="Name" PropertyName="Name">
+        @context.Name
+    </GridColumn>
+</Grid>
+
+<ProductCreateModal @ref="productCreateModal" />
+@code {
+    private ProductCreateModal productCreateModal { get; set; }
+
+    private IEnumerable<ProductModel?>? Products = default!;
+    private HashSet<ProductModel> selectedProducts = new();
+
+    private async Task<GridDataProviderResult<ProductModel>> UsersDataProvider(GridDataProviderRequest<ProductModel> request)
+    {
+        if (Products is null)
+            Products = await GetProducts();
+
+        return await Task.FromResult(request.ApplyTo(Products));
+    }
+
+    private async Task<List<ProductModel?>?> GetProducts()
+    {
+        var users = await ProductManager.GetAllAsync();
+        return users;
+    }
+
+    private Task OnSelectedItemsChanged(HashSet<ProductModel> Users)
+    {
+        selectedProducts = Users is not null && Users.Any() ? Users : new();
+        return Task.CompletedTask;
+    }
+
+    private async Task HandlerButtonCreateProduct()
+    {
+        await productCreateModal.ShowAsync();
+    }
+}

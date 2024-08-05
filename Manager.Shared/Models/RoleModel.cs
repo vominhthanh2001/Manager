@@ -8,23 +8,18 @@ using System.Threading.Tasks;
 
 namespace Manager.Shared.Models
 {
-    public class ToolProductModel
+    public class RoleModel
     {
         [Key]
+        [Column("Id")]
         public int Id { get; set; }
 
         [Column("Name")]
-        [Required(AllowEmptyStrings = true)]
-        public string? Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-        private string? _name;
+        public string? Role { get; set; } = string.Empty;
 
-        public override string? ToString()
+        public override string ToString()
         {
-            return _name;
+            return Role;
         }
     }
 }

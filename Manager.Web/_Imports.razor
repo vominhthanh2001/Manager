@@ -1,10 +1,31 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using Blazored.LocalStorage
+@using Manager.Web.Provider
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Components.WebAssembly.Http
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
 @using Manager.Web
 @using Manager.Web.Layout
+
+@using Manager.Shared.Contracts
+@using Manager.Shared.Models
+@using Manager.Shared.Utils
+@using Manager.Web.Utils
+@using Manager.Web.Pages.Authentications
+@using Manager.Web.Pages.ManagerControl.Modals.User
+@using Manager.Web.Pages.ManagerControl.Modals.Product
+
+@using BlazorBootstrap;
+
+@inject IListUserManager ListUserManager
+@inject IUserManager UserManager
+@inject IProductManager ProductManager
+
+@* @inject ILocalStorageService LocalStorageService; *@

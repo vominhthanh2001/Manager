@@ -1,18 +1,19 @@
 ﻿using Manager.Shared.Contracts;
 using Manager.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Manager.Api.Controllers.Users
 {
     [ApiController]
-    [Authorize(Roles = "Administration")]
-    [Route("api/tool-product")]
-    public class ToolProductManagerController : ControllerBase
+    //[Authorize(Roles = "Administration")]
+    [Route("api/product")]
+    public class ProductManagerController : ControllerBase
     {
-        private readonly IToolProductManager _service;
-        public ToolProductManagerController(IToolProductManager service)
+        private readonly IProductManager _service;
+        public ProductManagerController(IProductManager service)
         {
             _service = service;
         }
@@ -32,14 +33,21 @@ namespace Manager.Api.Controllers.Users
         }
 
         [HttpGet("find/{id}")]
-        public async Task<ActionResult<ToolProductModel?>> FindAsync(int? id)
+        public async Task<ActionResult<ProductModel?>> FindAsync(int? id)
         {
             var resFindAsync = await _service.FindAsync(id);
             return Ok(resFindAsync);
         }
 
-        [HttpGet("find/get-all")]
-        public async Task<ActionResult<List<ToolProductModel>?>> GetAllAsync()
+        [HttpGet("find-by-name/{name}")]
+        public async Task<ActionResult<ProductModel?>> FindAsync(string? name)
+        {
+            var resFindAsync = await _service.FindAsync(name);
+            return Ok(resFindAsync);
+        }
+
+        [HttpGet("get-all")]
+        public async Task<ActionResult<List<ProductModel>?>> GetAllAsync()
         {
             var resGetAllAsync = await _service.GetAllAsync();
             return Ok(resGetAllAsync);

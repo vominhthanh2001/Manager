@@ -1,0 +1,122 @@
+﻿<PageTitle>@Title</PageTitle>
+
+<Modal @ref="Ref" Title="@Title">
+    <BodyTemplate>
+        <EditForm Model="User">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="mb-3 mt-3">
+                <Dropdown Color="DropdownColor.Secondary" Size="DropdownSize.Small">
+                    <DropdownToggleButton>@roleSelected?.Role</DropdownToggleButton>
+                    <DropdownMenu>
+                        @foreach (var role in roles)
+                        {
+                            <DropdownItem Type="DropdownItemType.Button" @onclick="() => RoleSelected(role)">@role?.Role</DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
+
+                <Dropdown Color="DropdownColor.Secondary" Size="DropdownSize.Small">
+                    <DropdownToggleButton>@productSelected?.Name</DropdownToggleButton>
+                    <DropdownMenu>
+                        @foreach (var product in products)
+                        {
+                            <DropdownItem Type="DropdownItemType.Button" @onclick="() => ProductSelected(product)">@product.Name</DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
+            </div>
+        </EditForm>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="OnHandlerVaildSubmit">Cập Nhật</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Danger" @onclick="HideAsync">Thoát</Button>
+    </FooterTemplate>
+</Modal>
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    private string Title => $"Cập Nhật Id : {User?.Id.ToString()}";
+
+    [Parameter]
+    public UserModel User { get; set; } = new();
+
+    [Parameter]
+    public Modal Ref { get; set; }
+
+    [Parameter]
+    public EventCallback OnHandlerVaildSubmitAndReload { get; set; }
+
+    private List<ProductModel> products { get; set; } = new();
+    private ProductModel productSelected { get; set; }
+
+    private List<RoleModel> roles { get; set; } = new();
+    private RoleModel roleSelected { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await GetProductsAsync();
+        roles = await GetRolesAsync();
+    }
+
+    private async Task<List<ProductModel>> GetProductsAsync()
+    {
+        var products = await ProductManager.GetAllAsync();
+        return products;
+    }
+
+    private async Task<List<RoleModel>> GetRolesAsync()
+    {
+        var roles = new List<RoleModel>
+        {
+            new RoleModel { Id = 0 , Role = "User" },
+            new RoleModel { Id = 1 , Role = "Administration"}
+        };
+
+        return roles;
+    }
+
+    private void ProductSelected(ProductModel product)
+    {
+        productSelected = product;
+        User.Product = productSelected;
+    }
+
+    private void RoleSelected(RoleModel role)
+    {
+        roleSelected = role;
+        User.Role = roleSelected;
+    }
+
+    private async Task OnHandlerVaildSubmit()
+    {
+        var response = await ListUserManager.UpdateAsync(User);
+        if (!response.Status)
+        {
+            ToastMessageUtil.ShowMessage(ToastType.Warning, response.Message);
+            return;
+        }
+
+        await HideAsync();
+        ToastMessageUtil.ShowMessage(ToastType.Success, response.Message);
+    }
+
+    public async Task ShowAsync()
+    {
+        await OnInitializedAsync();
+
+        bool isProductExist = products.Where(x => x.Name == User.Product.Name).Count() > 0;
+        productSelected = isProductExist ? User.Product : products.FirstOrDefault();
+
+        bool isRoleExist = roles.Where(x => x.Role == User.Role.Role).Count() > 0;
+        roleSelected = isRoleExist ? User.Role : roles.FirstOrDefault();
+
+        await Ref.ShowAsync();
+    }
+    public async Task HideAsync()
+    {
+        await OnHandlerVaildSubmitAndReload.InvokeAsync();
+        await Ref.HideAsync();
+    }
+}

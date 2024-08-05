@@ -11,12 +11,14 @@ namespace Manager.Api.Services
         private DbSet<UserModel> _users => _context.Users;
         private readonly ServerDbContext _context;
         private readonly IListUserManager _service;
+        private readonly IProductManager _serviceProduct;
         private readonly TokenService _tokenService;
 
-        public UserManagerService(ServerDbContext context, IListUserManager service, TokenService tokenService)
+        public UserManagerService(ServerDbContext context, IListUserManager service, IProductManager serverProduct, TokenService tokenService)
         {
             _context = context;
             _service = service;
+            _serviceProduct = serverProduct;
             _tokenService = tokenService;
         }
 
@@ -84,10 +86,17 @@ namespace Manager.Api.Services
                     return new UserResponseModel
                     {
                         Status = false,
-                        Message = "Tài khoản tồn tại",
+                        Message = "Tạo tài khoản tồn tại",
                         Token = string.Empty
                     };
                 }
+
+                #region Fix Product
+                string nameProduct = user.Product.Name;
+                var productFind = await _serviceProduct.FindAsync(nameProduct);
+                if (productFind is not null)
+                    user.Product = productFind;
+                #endregion
 
                 var resAddAsync = await _service.AddAsync(user);
                 if (!resAddAsync.Status)

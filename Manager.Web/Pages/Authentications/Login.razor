@@ -1,0 +1,30 @@
+﻿@page "/login"
+<PageTitle>Đăng nhập</PageTitle>
+
+<EditForm Model="UserResult"
+          title="Đăng nhập tài khoản">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3 mt-3">
+        <InputText @bind-Value="UserResult.Username" class="form-control" placeholder="Tài Khoản"></InputText>
+        <ValidationMessage For="()=> UserResult.Username" />
+    </div>
+
+    <div class="mb-3 mt-3">
+        <InputText @bind-Value="UserResult.Password" class="form-control" placeholder="Mật Khẩu"></InputText>
+        <ValidationMessage For="()=> UserResult.Password" />
+    </div>
+
+    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="OnHandlerLogin">Đăng nhập</Button>
+</EditForm>
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    [Parameter]
+    public UserModel UserResult { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnHandlerLogin { get; set; }
+}

@@ -171,7 +171,7 @@ namespace Manager.Api.Services
 
         public async Task<List<UserModel?>?> GetAllAsync()
         {
-            var users = await _users.ToListAsync();
+            var users = await _context.GetUsersWithRolesAndProducts().ToListAsync();
             return users;
         }
 
@@ -191,6 +191,8 @@ namespace Manager.Api.Services
                 userFind.Password = user.Password;
                 userFind.TimeActive = user.TimeActive;
                 userFind.TimeExpired = user.TimeExpired;
+                userFind.Role = user.Role;
+                userFind.Product = user.Product;
 
                 await _context.SaveChangesAsync();
 

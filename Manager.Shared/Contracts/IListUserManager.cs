@@ -10,9 +10,9 @@ namespace Manager.Shared.Contracts
     public interface IListUserManager
     {
         Task<ListUserResponseModel> AddAsync(UserModel? user);
-        Task<ListUserResponseModel> AddAsync(List<UserModel?>? user);
+        Task<ListUserResponseModel> AddAsync(List<UserModel?>? users);
         Task<ListUserResponseModel> UpdateAsync(UserModel? user);
-        Task<ListUserResponseModel> UpdateAsync(List<UserModel?> user);
+        Task<ListUserResponseModel> UpdateAsync(List<UserModel?> users);
         Task<ListUserResponseModel> DeleteAsync(int? id);
         Task<ListUserResponseModel> DeleteAsync(List<int?>? ids);
         Task<UserModel?> FindAsync(int? id);

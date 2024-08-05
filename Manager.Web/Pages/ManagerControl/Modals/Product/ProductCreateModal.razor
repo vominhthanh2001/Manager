@@ -1,0 +1,39 @@
+﻿<Modal @ref="Ref">
+    <BodyTemplate>
+        <EditForm Model="Product">
+            <div class="mb-3 mt-3">
+                <label class="control-label mb-1">Tên</label>
+                <InputText @bind-Value="Product.Name" class="form-control" placeholder="Tên"></InputText>
+                <ValidationMessage For="()=> Product.Name" />
+            </div>
+        </EditForm>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="OnHandlerVaildSubmit">Tạo</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Danger" @onclick="HideAsync">Thoát</Button>
+    </FooterTemplate>
+</Modal>
+@code {
+    [Parameter]
+    public Modal Ref { get; set; }
+
+    [Parameter]
+    public ProductModel Product { get; set; } = new();
+
+    private async Task OnHandlerVaildSubmit()
+    {
+        string name = Product.Name;
+        var response = await ProductManager.CreateAsync(name);
+        if (!response)
+        {
+            ToastMessageUtil.ShowMessage(ToastType.Warning, $"Tạo product '{name}' thất tại");
+            return;
+        }
+
+        await HideAsync();
+        ToastMessageUtil.ShowMessage(ToastType.Success, "Tạo thành công");
+    }
+
+    public async Task ShowAsync() => await Ref.ShowAsync();
+    public async Task HideAsync() => await Ref.HideAsync();
+}

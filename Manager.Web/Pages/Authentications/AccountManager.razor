@@ -1,0 +1,28 @@
+﻿@page "/account"
+@using Manager.Web.Provider
+
+<div class="container">
+    <Card Class="mb-4">
+        <CardBody>
+            <CardTitle Class="justify-content-center">Đăng nhập</CardTitle>
+            <Login UserResult="user"
+                   OnHandlerLogin="OnHandlerLogin" />
+        </CardBody>
+    </Card>
+</div>
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    private UserModel user { get; set; } = new();
+    private async Task OnHandlerLogin()
+    {
+        var resLogin = await UserManager.Login(user);
+        if (!resLogin.Status)
+        {
+            ToastMessageUtil.ShowMessage(ToastType.Danger, resLogin.Message);
+            return;
+        }
+
+        ToastMessageUtil.ShowMessage(ToastType.Success, resLogin.Message);
+    }
+}
