@@ -51,19 +51,19 @@ namespace Manager.Api.Services
                 }
 
                 #region Update And Check Online & Max Device
-                if (userFind.Device is null)
-                    userFind.Device = new DeviceModel();
+                //if (userFind.Device is null)
+                //    userFind.Device = new DeviceModel();
 
-                if (userFind.Device.IsOnline && userFind.Device.MaxDevice == userFind.Device.TotalOnline)
-                {
-                    return new UserResponseModel
-                    {
-                        Status = false,
-                        Message = "Tài khoản này đã được đăng nhập ở thiết bị khác",
-                        Token = string.Empty
-                    };
-                }
-                userFind.Device.ActionOnline();
+                //if (userFind.Device.IsOnline && userFind.Device.MaxDevice == userFind.Device.TotalOnline)
+                //{
+                //    return new UserResponseModel
+                //    {
+                //        Status = false,
+                //        Message = "Tài khoản này đã được đăng nhập ở thiết bị khác",
+                //        Token = string.Empty
+                //    };
+                //}
+                //userFind.Device.ActionOnline();
                 #endregion
 
                 string tokenAuthentication = _tokenService.GenerateToken(userFind);

@@ -53,7 +53,7 @@ namespace Manager.Api.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Issuer"],
                 claims: claims,
-                expires: expiredToken,
+                expires: user.TimeExpired,
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
