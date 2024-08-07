@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Manager.Api.Controllers.Users
 {
     [ApiController]
-    [Authorize(Roles = "Administration")]
+    //[Authorize(Roles = "Administration")]
     [Route("api/product")]
     public class ProductManagerController : ControllerBase
     {

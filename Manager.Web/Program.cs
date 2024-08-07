@@ -21,7 +21,7 @@ builder.Services.AddScoped<IProductManager, ProductManagerService>();
 
 builder.Services.AddHttpClient("DevoloperAPI", client =>
 {
-    client.BaseAddress = new Uri("http://103.231.249.123/");
+    client.BaseAddress = new Uri("https://localhost:7215/");
 }).AddHttpMessageHandler<CustomHttpHandler>();
 
 builder.Services.AddBlazoredLocalStorage();
