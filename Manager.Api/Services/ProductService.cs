@@ -7,7 +7,7 @@ namespace Manager.Api.Services
 {
     public class ProductService : IProductManager
     {
-        private DbSet<ProductModel> _product => _contenxt.ToolProducts;
+        private DbSet<ProductModel> _product => _contenxt.Products;
         private readonly ServerDbContext _contenxt;
         public ProductService(ServerDbContext contenxt)
         {

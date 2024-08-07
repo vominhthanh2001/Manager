@@ -1,7 +1,15 @@
 ﻿@page "/"
+@attribute [Authorize(Roles = "Administration")]
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Fingerprint</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Fingerprint: @fingerprint</h1>
 
-Welcome to your new app.
+@code {
+    private string fingerprint { get; set; } = "";
+    protected async override Task OnInitializedAsync()
+    {
+        await Task.Delay(1000);
+        fingerprint = await JS.InvokeAsync<string>("getFingerprint");
+    }
+}

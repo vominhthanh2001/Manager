@@ -14,20 +14,20 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<IListUserManager, ListUserManagerService>();
 builder.Services.AddScoped<IUserManager, UserManagerService>();
 builder.Services.AddScoped<IProductManager, ProductManagerService>();
-builder.Services.AddHttpClient("DevoloperAPI", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7215/");
-});
-
 //builder.Services.AddHttpClient("DevoloperAPI", client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7215/");
-//}).AddHttpMessageHandler<CustomHttpHandler>();
+//});
 
-//builder.Services.AddBlazoredLocalStorage();
-//builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-//builder.Services.AddAuthorizationCore();
-//builder.Services.AddScoped<CustomHttpHandler>();
+builder.Services.AddHttpClient("DevoloperAPI", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7215/");
+}).AddHttpMessageHandler<CustomHttpHandler>();
+
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<CustomHttpHandler>();
 
 builder.Services.AddBlazorBootstrap();
 

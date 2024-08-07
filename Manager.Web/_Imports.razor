@@ -24,8 +24,10 @@
 
 @using BlazorBootstrap;
 
+@inject IJSRuntime JS
+
 @inject IListUserManager ListUserManager
 @inject IUserManager UserManager
 @inject IProductManager ProductManager
 
-@* @inject ILocalStorageService LocalStorageService; *@
+@inject AuthenticationStateProvider AuthStateProvider

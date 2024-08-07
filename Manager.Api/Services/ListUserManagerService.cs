@@ -171,8 +171,7 @@ namespace Manager.Api.Services
 
         public async Task<List<UserModel?>?> GetAllAsync()
         {
-            var users = await _context.GetUsersWithRolesAndProducts().ToListAsync();
-            return users;
+            return await _context.IncludeGetAllUsers();
         }
 
         public async Task<ListUserResponseModel> UpdateAsync(UserModel? user)

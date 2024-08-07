@@ -1,9 +1,9 @@
-﻿<PageTitle>Đăng ký tài khoản</PageTitle>
+﻿<PageTitle>Đăng nhập tài khoản</PageTitle>
 
-<Modal @ref="Ref" Title="Đăng ký tài khoản">
+<Modal @ref="Ref" Title="Đăng nhập tài khoản">
     <BodyTemplate>
         <EditForm Model="User"
-                  title="Đăng ký tài khoản">
+                  title="Đăng nhập tài khoản">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -21,7 +21,7 @@
         </EditForm>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="OnHandlerVaildSubmit">Đăng ký</Button>
+        <Button Type="ButtonType.Button" Color="ButtonColor.Success" @onclick="OnHandlerVaildSubmit">Đăng nhập</Button>
         <Button Type="ButtonType.Button" Color="ButtonColor.Danger" @onclick="HideAsync">Thoát</Button>
     </FooterTemplate>
 </Modal>
@@ -33,9 +33,13 @@
     public Modal Ref { get; set; }
 
     [Parameter]
+    public EventCallback<UserModel> UserStateChanged { get; set; }
+
+    [Parameter]
     public EventCallback OnHandlerVaildSubmitAndReload { get; set; }
 
-    private UserModel User = new UserModel();
+    [Parameter]
+    public UserModel User { get; set; } = new();
 
     public async Task ShowAsync() => await Ref.ShowAsync();
     public async Task HideAsync()
@@ -46,16 +50,15 @@
 
     private async Task OnHandlerVaildSubmit()
     {
-        User.Role = new RoleModel { Role = "User" };
-        User.Product = new ProductModel { Name = "New Register" };
-        User.Authentication = new();
-
-        var response = await UserManager.Register(User);
+        var response = await UserManager.Login(User);
         if (!response.Status)
         {
             ToastMessageUtil.ShowMessage(ToastType.Warning, response.Message);
             return;
         }
+
+        var auth = (CustomAuthenticationStateProvider)AuthStateProvider;
+        auth.MarkUserAsAuthenticated(response.Token);
 
         await HideAsync();
         ToastMessageUtil.ShowMessage(ToastType.Success, response.Message);

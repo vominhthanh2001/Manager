@@ -12,6 +12,7 @@ namespace Manager.Shared.Contracts
         Task<UserResponseModel> Login(UserModel? user);
         Task<UserResponseModel> Logout(UserModel? user);
         Task<UserResponseModel> Register(UserModel? user);
+        Task<UserResponseModel> RefreshToken(UserModel? user);
         Task<UserModel> ForgotPassword(string username);
     }
 }

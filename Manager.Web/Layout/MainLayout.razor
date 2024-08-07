@@ -6,19 +6,36 @@
               IconName="IconName.Server"
               Title="Server"
               BadgeText="v1.0.0"
-              DataProvider="Sidebar2DataProvider" />
+              DataProvider="Sidebar2DataProvider"
+              Style="" />
+
     <main>
+        <div class="bb-top-row px-4 d-flex justify-content-end">
+           @*  <div class="row">
+                <div class="col">
+                    <Button Type="ButtonType.Button" Color="ButtonColor.Primary" @onclick="LoginAsync">Đăng nhập</Button>
+                </div>
+            </div> *@
+        </div>
+
         <article class="content px-4">
             <div class="py-2">@Body</div>
         </article>
     </main>
 </div>
 
-<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+<UserLoginModal @ref="LoginModal" User="User" />
+<UserRegisterModal @ref="RegisterModal" />
+
+<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="3000" Placement="ToastsPlacement.TopRight" />
 
 @code {
-    private IEnumerable<NavItem> _navItems;
+    private UserLoginModal LoginModal { get; set; }
+    private UserRegisterModal RegisterModal { get; set; }
+    private UserModel User { get; set; } = new();
 
+
+    private IEnumerable<NavItem> _navItems;
     private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
     {
         if (_navItems is null)
@@ -36,5 +53,31 @@
         };
 
         return _navItems;
+    }
+
+    private async Task LogoutAsync()
+    {
+        var response = await UserManager.Logout(User);
+        if (!response.Status)
+        {
+            ToastMessageUtil.ShowMessage(ToastType.Danger, response.Message);
+            return;
+        }
+
+        var auth = (CustomAuthenticationStateProvider)AuthStateProvider;
+        await auth.MarkUserAsLoggedOut();
+
+        // ToastMessageUtil.ShowMessage(ToastType.Success, response.Message);
+        navigationManager.NavigateTo("/", true);
+    }
+
+    private async Task LoginAsync()
+    {
+        await LoginModal.ShowAsync();
+    }
+
+    private async Task RegisterAsync()
+    {
+        await RegisterModal.ShowAsync();
     }
 }

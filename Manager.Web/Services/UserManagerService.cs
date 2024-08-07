@@ -38,6 +38,14 @@ namespace Manager.Web.Services
             return response;
         }
 
+        public async Task<UserResponseModel> RefreshToken(UserModel? user)
+        {
+            var resHttp = await _client.PostAsJsonAsync($"/api/user-manager/refresh-token", user);
+            var response = await resHttp.Content.ReadFromJsonAsync<UserResponseModel>();
+
+            return response;
+        }
+
         public async Task<UserResponseModel> Register(UserModel? user)
         {
             var resHttp = await _client.PostAsJsonAsync($"/api/user-manager/register", user);

@@ -132,6 +132,14 @@ namespace Manager.Shared.Models
         }
         private AuthenticationModel _authentication = new AuthenticationModel();
 
+        [Column("Device")]
+        public DeviceModel Device
+        {
+            get { return _device; }
+            set { _device = value; }
+        }
+        private DeviceModel _device = new DeviceModel();
+
         /// <summary>
         /// So sánh 2 mã hash
         /// </summary>

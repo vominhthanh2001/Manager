@@ -34,7 +34,8 @@ namespace Manager.Api.Services
                 if (user is null)
                     throw new ArgumentNullException(nameof(user));
 
-                var userFind = _users.ToList().FirstOrDefault(x => x.License == user.License);
+                var allUsers = await _context.IncludeGetAllUsers();
+                var userFind = allUsers.FirstOrDefault(x => x.License == user.License);
                 if (userFind is null)
                     throw new ArgumentNullException(nameof(userFind));
 
@@ -49,17 +50,34 @@ namespace Manager.Api.Services
                     };
                 }
 
+                #region Update And Check Online & Max Device
+                if (userFind.Device is null)
+                    userFind.Device = new DeviceModel();
+
+                if (userFind.Device.IsOnline && userFind.Device.MaxDevice == userFind.Device.TotalOnline)
+                {
+                    return new UserResponseModel
+                    {
+                        Status = false,
+                        Message = "Tài khoản này đã được đăng nhập ở thiết bị khác",
+                        Token = string.Empty
+                    };
+                }
+                userFind.Device.ActionOnline();
+                #endregion
+
                 string tokenAuthentication = _tokenService.GenerateToken(userFind);
 
                 #region Update Authentication
                 if (userFind.Authentication is null)
                 {
                     userFind.Authentication = new AuthenticationModel();
-                    userFind.Authentication.Jwt = tokenAuthentication;
-
-                    await _context.SaveChangesAsync();
                 }
+
+                userFind.Authentication.Jwt = tokenAuthentication;
                 #endregion
+
+                await _context.SaveChangesAsync();
 
                 return new UserResponseModel
                 {
@@ -78,9 +96,49 @@ namespace Manager.Api.Services
             };
         }
 
-        public Task<UserResponseModel> Logout(UserModel? user)
+        public async Task<UserResponseModel> Logout(UserModel? user)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (user is null)
+                    throw new ArgumentNullException(nameof(user));
+
+                int id = user.Id;
+                var users = await _context.IncludeGetAllUsers();
+                var userFind = users.FirstOrDefault(x => x.License == user.License);
+                if (userFind is null)
+                    throw new Exception();
+
+                /*
+                 * khi tất cả các thiết bị logout hết thì tiến hành xóa mã authentication
+                 * tính cho trường hợp nếu bị lộ mã jwt
+                 */
+                bool isEmptyToken = userFind.Device.ActionOffline();
+                if (isEmptyToken)
+                {
+                    userFind.Authentication.Jwt = string.Empty;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return new UserResponseModel
+                {
+                    Status = true,
+                    Message = "Đăng xuất thành công",
+                    Token = string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return new UserResponseModel
+            {
+                Status = false,
+                Message = "Đăng xuất bị lỗi",
+                Token = string.Empty
+            };
         }
 
         public async Task<UserResponseModel> Register(UserModel? user)
@@ -126,6 +184,51 @@ namespace Manager.Api.Services
                 Status = false,
                 Message = "Tào tài khoản thất bại",
                 Token = string.Empty
+            };
+        }
+
+        public async Task<UserResponseModel> RefreshToken(UserModel? user)
+        {
+            try
+            {
+                if (user is null)
+                    throw new ArgumentNullException(nameof(user));
+
+                var allUsers = await _context.IncludeGetAllUsers();
+                var userFind = allUsers.FirstOrDefault(x => x.License == user.License);
+                if (userFind is null)
+                    throw new ArgumentNullException(nameof(userFind));
+
+                bool isCompare = userFind.CompareDateTime();
+                if (!isCompare)
+                {
+                    return new UserResponseModel
+                    {
+                        Status = false,
+                        Message = "Hết hạn sử dụng",
+                        Token = user.Authentication.Jwt
+                    };
+                }
+
+                string tokenAuthentication = _tokenService.GenerateToken(userFind);
+                userFind.Authentication.Jwt = tokenAuthentication;
+
+                await _context.SaveChangesAsync();
+
+                return new UserResponseModel
+                {
+                    Status = true,
+                    Message = "Thành công",
+                    Token = tokenAuthentication
+                };
+            }
+            catch (Exception ex) { }
+
+            return new UserResponseModel
+            {
+                Status = false,
+                Message = "Thất bại",
+                Token = user.Authentication.Jwt
             };
         }
     }

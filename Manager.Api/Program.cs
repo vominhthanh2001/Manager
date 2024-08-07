@@ -26,6 +26,7 @@ builder.Services.AddDbContext<ServerDbContext>(o => o.UseSqlServer(connectString
 builder.Services.AddScoped<IListUserManager, ListUserManagerService>();
 builder.Services.AddScoped<IProductManager, ProductService>();
 builder.Services.AddScoped<IUserManager, UserManagerService>();
+builder.Services.AddScoped<IAntiHacker, AntiHackerService>();
 builder.Services.AddScoped<TokenService>();
 /**********************************************/
 

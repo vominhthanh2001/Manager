@@ -13,16 +13,14 @@ namespace Manager.Api.Data
         }
 
         public DbSet<UserModel> Users { get; set; }
-        public DbSet<ProductModel> ToolProducts { get; set; }
+        public DbSet<ProductModel> Products { get; set; }
+        public DbSet<RoleModel> Roles { get; set; }
+        public DbSet<AuthenticationModel> Authentications { get; set; }
 
-        // Phương thức tùy chỉnh để lấy dữ liệu User cùng với Role và Product
-        public IQueryable<UserModel> GetUsersWithRolesAndProducts()
-        {
-            return Users
-                .Include(u => u.Role)
-                .Include(u => u.Product)
-                .Include(u => u.Authentication);
-        }
+        public async Task<List<UserModel>> IncludeGetAllUsers() => await Users.IncludeAll(this).ToListAsync();
+        public async Task<List<ProductModel>> IncludeGetAllProducts() => await Products.IncludeAll(this).ToListAsync();
+        public async Task<List<RoleModel>> IncludeGetAllRoles() => await Roles.IncludeAll(this).ToListAsync();
+        public async Task<List<AuthenticationModel>> IncludeGetAllAuthentications() => await Authentications.IncludeAll(this).ToListAsync();
 
         private void CreateDatabaseIfNotExists()
         {
@@ -47,6 +45,5 @@ namespace Manager.Api.Data
                 Console.WriteLine($"Error: {ex.Message}");
             }
         }
-
     }
 }

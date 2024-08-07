@@ -37,9 +37,12 @@ namespace Manager.Api.Services
 
         public string GenerateToken(UserModel user)
         {
+            var dateTimeNow = Manager.Shared.Utils.DateTimeUtil.GetCurrentTimeInVietnam();
+            var expiredToken = dateTimeNow.AddMinutes(5);
+
             var claims = new[]
             {
-            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Name, user.License),
             new Claim(ClaimTypes.Role, user.Role.Role)
         };
 
@@ -50,7 +53,7 @@ namespace Manager.Api.Services
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Issuer"],
                 claims: claims,
-                expires: user.TimeExpired,
+                expires: expiredToken,
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

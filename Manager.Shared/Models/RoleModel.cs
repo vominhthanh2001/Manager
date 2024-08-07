@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Manager.Shared.Models
 {
+    [Table("Roles")]
     public class RoleModel
     {
         [Key]

@@ -1,0 +1,34 @@
+﻿<Toasts class="p-3" Messages="ToastMessageUtil.Messages" AutoHide="true" Delay="3000" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    [Parameter]
+    public Modal Ref { get; set; }
+
+    [Parameter]
+    public EventCallback OnHandlerVaildSubmitAndReload { get; set; }
+
+    private UserModel User = new UserModel();
+
+    public async Task ShowAsync() => await Ref.ShowAsync();
+    public async Task HideAsync()
+    {
+        await OnHandlerVaildSubmitAndReload.InvokeAsync();
+        await Ref.HideAsync();
+    }
+
+    private async Task OnHandlerVaildSubmit()
+    {
+        var response = await UserManager.Login(User);
+        if (!response.Status)
+        {
+            ToastMessageUtil.ShowMessage(ToastType.Warning, response.Message);
+            return;
+        }
+
+        var auth = (CustomAuthenticationStateProvider)AuthStateProvider;
+        auth.MarkUserAsAuthenticated(response.Token);
+
+        await HideAsync();
+        ToastMessageUtil.ShowMessage(ToastType.Success, response.Message);
+    }
+}

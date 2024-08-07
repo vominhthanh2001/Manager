@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Manager.Shared.Models
 {
+    [Table("Authentications")]
     public class AuthenticationModel
     {
         [Key]
